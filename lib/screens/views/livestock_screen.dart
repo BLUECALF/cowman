@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cowman/screens/controllers/livestock_contoller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -37,25 +39,52 @@ class LivestockScreen extends GetView
           backgroundColor: Colors.green,
         ),
 
-        body: Column(
-          children: [
-            SizedBox(height: 30),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              SizedBox(height: 30),
 
-            StreamBuilder(
-              stream: livestockController.database.getLivestockListStream(),
-                builder:(context,snapshot)
-                {
-                  print("Snaphot.data is ${snapshot.data}");
-                  if(snapshot.hasError || snapshot.isBlank == true || snapshot.data == null)
-                    {return Text("Failed to get Livestock");}
-                  List<Livestock> livestockList = snapshot.data as List<Livestock>;
-                  return livestockController.render_livestock(livestockList);
+              StreamBuilder(
+                stream: livestockController.database.getLivestockListStream(),
+                  builder:(context,snapshot)
+                  {
+                    print("Snaphot.data is ${snapshot.data}");
+                    if(snapshot.hasError || snapshot.isBlank == true || snapshot.data == null)
+                      {print("Fail was called");return Text("Failed to get Livestock");}
+                    List<Livestock> livestockList = snapshot.data as List<Livestock>;
+                    return Column(
+                      children:livestockList.map((e) {
+                        print("MAP CODE WAS CALLED ");
+                        print(livestockList);
+                        return Center(
+                          child: Card(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text("${e.name}"),
+                                Image.memory(base64Decode(e.image),
+                                  height:  Get.height/4,
+                                  width: Get.width/2,
+                                  fit: BoxFit.cover,
+                                ),
+                                Text("${e.breed}"),
+                                Text("${e.dob}"),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      ).toList(),
+                    );
 
-                }
-            ),
+                  }
+              ),
 
 
-          ],
+            ],
+          ),
         ),
       floatingActionButton: a.GradientFloatingActionButton(
         gradient: g2,
